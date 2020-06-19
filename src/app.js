@@ -10,16 +10,6 @@ app.use(cors());
 
 const repositories = [];
 
-const existsUrl = (request, response, next) => {
-  const { url } = request.body;
-  const condition = repository => repository.url == url;
-  const existsRepository = repositories.find(condition);
-  if(existsRepository) 
-    return response.status(403).json({ error: "repository already exists"});
-  request.urlRepository = url;
-  return next();
-}
-
 const existsRepository = (request, response, next) => {
   const { id } = request.params;
   const index = repositories.findIndex(repository => repository.id == id);
@@ -29,13 +19,14 @@ const existsRepository = (request, response, next) => {
   return next();
 }
 
-app.get("/repositories", (request, response) => 
-  response.status(200).json(repositories));
+app.get("/repositories", (request, response) => {
+  return response.json(repositories);
+});
 
-app.post("/repositories", existsUrl, (request, response) => {
-  const { title, techs} = request.body;
+app.post("/repositories", (request, response) => {
+  const { title, techs, url } = request.body;
   const repository = { 
-    id: uuid(), likes: 0, title, url: request.urlRepository, techs };
+    id: uuid(), likes: 0, title, url, techs };
   repositories.push(repository);
   return response.status(201).json(repository);
 });
